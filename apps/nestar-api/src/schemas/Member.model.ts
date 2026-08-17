@@ -116,7 +116,7 @@ const MemeberSchema = new Schema (
         type: Date,
     },
 },
-{ timestamps: true, collation: { locale: 'members' }},
+{ timestamps: true, collection:  'members' },
 );
 
 export default MemeberSchema;
