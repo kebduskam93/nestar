@@ -13,7 +13,6 @@ export class MemberService {
 
       public async signup(input: MemberInput): Promise<Member> {
        // TODO: Hash password
-       
        try {
            const result = await this.memberModel.create(input);
            // TODO: Authentication via TOKEN
@@ -27,16 +26,10 @@ export class MemberService {
 
   public async login(input: LoginInput): Promise<Member> {
     const { memberNick, memberPassword } = input;
-
-    console.log('LOGIN INPUT:', input);
-    console.log('MEMBER NICK:', memberNick);
-
     const response = await this.memberModel
-        .findOne({ memberNick })
+        .findOne({ memberNick: memberNick })
         .select('+memberPassword')
         .exec();
-
-    console.log('MEMBER RESPONSE:', response);
 
     if (!response || response.memberStatus === MemberStatus.DELETE) {
         throw new InternalServerErrorException(Message.NO_MEMBER_NICK);
