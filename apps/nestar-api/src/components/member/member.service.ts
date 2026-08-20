@@ -53,11 +53,16 @@ export class MemberService {
     return response;
 }
 
-        public async updateMember(): Promise<string> {
-        return 'updateMember excuted!';
+      public async updateMember(): Promise<string> {
+        return 'updateMember executed!';
     }
-
-        public async getMember(): Promise<string> {
-        return 'getMember excuted!';
+      public async getMember(): Promise<string> {
+        return 'getMember executed!';
+    }
+      public async getAllMembersByAdmin(): Promise<string> {
+        return 'getAllMembersByAdmin executed!';
+    }
+      public async updateMemberByAdmin(): Promise<string> {
+        return 'updateMemberByAdmin executed!';
     }
 }

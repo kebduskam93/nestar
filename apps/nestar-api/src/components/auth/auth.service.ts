@@ -30,8 +30,4 @@ export class AuthService {
         return await this.jwtService.signAsync(payload);
     }
 
-    public async verifyToken(token: string): Promise<Member> {
-        const member = await this.jwtService.verifyAsync(token);
-        return member;
-    }
 }
