@@ -3,6 +3,7 @@ import * as bcrypt from 'bcryptjs';
 import { T } from '../../libs/types/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Member } from '../../libs/dto/member/member';
+import { shapeIntoMongoObjectId } from '../../libs/config';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,6 @@ export class AuthService {
     }
 
     public async comparePasswords(password: string, hashedPassword: string): Promise<boolean> {
-     
         return await bcrypt.compare(password, hashedPassword);
     }
 
@@ -26,8 +26,13 @@ export class AuthService {
          delete payload.memberPassword;
          console.log('payload:', payload);
 
-
         return await this.jwtService.signAsync(payload);
     }
+
+   public async verifyToken(token: string): Promise<Member> {
+    const member = await this.jwtService.verifyAsync(token);
+    member._id = shapeIntoMongoObjectId(member._id);
+    return member;
+}
 
 }
