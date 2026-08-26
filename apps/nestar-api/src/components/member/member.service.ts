@@ -9,6 +9,9 @@ import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { access } from 'fs';
 import { T } from '../../libs/types/common';
+import { ViewService } from '../view/view.service';
+import { ViewGroup } from '../../libs/enums/view.enum';
+import { ViewInput } from '../../libs/dto/view/view.input';
 
 @Injectable()
 export class MemberService {
@@ -16,6 +19,7 @@ export class MemberService {
      constructor(
         @InjectModel('Member') private readonly memberModel: Model<Member>,
       private authService: AuthService,
+      private viewService: ViewService,
     ) {}
 
       public async signup(input: MemberInput): Promise<Member> {
@@ -73,18 +77,31 @@ export class MemberService {
        return result;
     }
 
-      public async getMember(targetId: Object): Promise<Member> {
-        const search: T = {
-          _id: targetId,
-          memberStatus: {
-            $in: [MemberStatus.ACTIVE, MemberStatus.BLOCK],
-          },
-        };
-        const targetMember = await this.memberModel.findOne(search).exec();
-        if(!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    public async getMember(memberId: ObjectId, targetId: ObjectId): Promise<Member> {
+    const search: T = {
+      _id: targetId,
+      memberStatus: {
+        $in: [MemberStatus.ACTIVE, MemberStatus.BLOCK],
+      },
+    };
+    const targetMember = await this.memberModel.findOne(search).lean().exec();
+    if(!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
-        return targetMember;
+    if(memberId) {
+      const viewInput: ViewInput = { 
+        memberId: memberId, 
+        viewRefId: targetId, 
+        viewGroup: ViewGroup.MEMBER
+      };
+      
+      const newView = await this.viewService.recordView(viewInput);
+      if(newView) {
+        await this.memberModel.findByIdAndUpdate(targetId, { $inc: { memberViews: 1 } }, { new: true }).exec();
+        targetMember.memberViews++;
+      }
     }
+    return targetMember;
+}
 
       public async getAllMembersByAdmin(): Promise<string> {
         return 'getAllMembersByAdmin executed!';

@@ -11,6 +11,7 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { shapeIntoMongoObjectId } from '../../libs/config';
+import { WithoutGuard } from '../auth/guards/without.guard';
 
 
 @Resolver()
@@ -30,16 +31,6 @@ export class MemberResolver {
       return this.memberService.login(input);
   }
     // Authenticated
-    @UseGuards(AuthGuard)
-    @Mutation(() => Member)
-    public async updateMember(
-        @Args('input') input: MemberUpdate,
-        @AuthMember('_id') memberId: ObjectId,
-    ): Promise<Member> {
-        console.log('Mutation: updateMember');
-       delete (input as any)._id;
-       return this.memberService.updateMember(memberId, input);
-    }
 
     @UseGuards(AuthGuard)
     @Mutation(() => String)
@@ -58,11 +49,24 @@ export class MemberResolver {
        return `Hi ${authMember.memberNick}, you are ${authMember.memberType} (memberId: ${authMember._id})`;
     }
 
+        @UseGuards(AuthGuard)
+    @Mutation(() => Member)
+    public async updateMember(
+        @Args('input') input: MemberUpdate,
+        @AuthMember('_id') memberId: ObjectId,
+    ): Promise<Member> {
+        console.log('Mutation: updateMember');
+       delete (input as any)._id;
+       return this.memberService.updateMember(memberId, input);
+    }
+
+      @UseGuards(WithoutGuard)
     @Query(() => Member)
-    public async getMember(@Args('memberId') input: string): Promise<Member> {
+    public async getMember(@Args('memberId') input: string, @AuthMember('_id') memberId: ObjectId): Promise<Member> {
         console.log('Query: getMember');
+        console.log('memberId:', memberId);
         const targetId = shapeIntoMongoObjectId(input);
-        return this.memberService.getMember(targetId);
+        return this.memberService.getMember(memberId, targetId);
     }
 
     /** ADMIN **/
