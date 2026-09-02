@@ -3,6 +3,17 @@ import { ObjectId  } from "bson";
 export const availableAgentSorts = ['CreatedAt', 'UpdatedAt', 'memberLikes', 'memberViews ', 'memberRank'];
 export const availableMemberSorts = ['CreatedAt', 'UpdatedAt', 'memberLikes', 'memberViews '];
 
+export const availableOptions = ['propertyBarter', 'propertyRent'];
+export const availablePropertySorts = [
+    'createdAt', 
+    'updatedAt', 
+    'propertyLikes', 
+    'propertyViews',
+    'propertyRank',  
+    'propertyPrice', 
+ ];
+
+
  /**  IMAGE CONFIGURATION **/
 import { randomUUID } from 'crypto';
 import * as path from 'path';
@@ -20,4 +31,13 @@ export const shapeIntoMongoObjectId = ( target: any) => {
 
 function uuidv4() {
     throw new Error("Function not implemented.");
+}
+
+export const lookupMember = {
+    $lookup: {
+        from: 'members',
+        localField: 'memberId',
+        foreignField: '_id',
+        as: 'memberData',
+    }
 }
